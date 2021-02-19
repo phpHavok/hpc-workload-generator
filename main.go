@@ -7,13 +7,17 @@ import "C"
 
 import (
 	"fmt"
+	"os"
 	"runtime"
 	"time"
+
+	"github.com/phpHavok/hpc-workload-generator/cgroups"
 )
 
 func worker(id int, finished chan bool) {
 	runtime.LockOSThread()
-	C.lock_os_thread(C.int(2))
+	C.lock_os_thread(C.int(id))
+	fmt.Println("Running process: ", id, " on CPU: ", C.sched_getcpu())
 	globalStart := time.Now()
 	for {
 		cycleStart := time.Now()
@@ -29,15 +33,35 @@ func worker(id int, finished chan bool) {
 			break
 		}
 	}
-	fmt.Println("Done")
+	fmt.Println("Done with process: ", id, " on CPU: ", C.sched_getcpu())
 	finished <- true
 }
 
 func main() {
-	finished := make(chan bool)
-	fmt.Println("HEllo world")
-	go worker(1, finished)
+	processCgroups, err := cgroups.LoadProcessCgroups(os.Getpid())
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+		return
+	}
+
+	cpus, err := processCgroups.Cpuset.GetCpus()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+		return
+	}
+
+	fmt.Println("CPUSET: ", cpus)
+
+	runtime.GOMAXPROCS(len(cpus))
+	finished := make(chan bool, len(cpus))
+	for _, workerNumber := range cpus {
+		go worker(workerNumber, finished)
+	}
 	fmt.Println("waiting for worker to finish")
-	<-finished
+	for i := 0; i < len(cpus); i++ {
+		<-finished
+	}
 	fmt.Println("DONE WITH MAIN")
 }

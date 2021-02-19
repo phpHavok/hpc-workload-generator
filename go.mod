@@ -1,3 +1,3 @@
-module github.com/phpHavok/hpc-workload-generator/v2
+module github.com/phpHavok/hpc-workload-generator
 
 go 1.15

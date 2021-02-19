@@ -1,7 +1,8 @@
 TARGET:=hpc-workload-generator
 CONTAINER:=hpc-workload-generator.sif
+SOURCES:=main.go helper.c helper.h cgroups/cgroups.go cgroups/cpuset.go
 
-$(TARGET): main.go helper.c helper.h
+$(TARGET): $(SOURCES)
 	go build -o $@
 
 $(CONTAINER): Singularity
