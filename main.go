@@ -14,26 +14,31 @@ import (
 	"github.com/phpHavok/hpc-workload-generator/cgroups"
 )
 
-func worker(id int, finished chan bool) {
+func taxCPU(cpuID int, pctLoad int, duration time.Duration, finished chan bool) {
 	runtime.LockOSThread()
-	C.lock_os_thread(C.int(id))
-	fmt.Println("Running process: ", id, " on CPU: ", C.sched_getcpu())
+	defer runtime.UnlockOSThread()
+	C.lock_os_thread(C.int(cpuID))
+	if C.sched_getcpu() != C.int(cpuID) {
+		fmt.Printf("failed to bind thread to cpu %d\n", cpuID)
+		finished <- false
+		return
+	}
+	unitMultiplier := 100
 	globalStart := time.Now()
 	for {
 		cycleStart := time.Now()
 		for {
 			cycleElapsed := time.Now().Sub(cycleStart)
-			if cycleElapsed >= time.Microsecond*3000 {
+			if cycleElapsed >= time.Microsecond*time.Duration(pctLoad)*time.Duration(unitMultiplier) {
 				break
 			}
 		}
-		time.Sleep(time.Microsecond * 7000)
+		time.Sleep(time.Microsecond * (100 - time.Duration(pctLoad)) * time.Duration(unitMultiplier))
 		globalElapsed := time.Now().Sub(globalStart)
-		if globalElapsed >= time.Second*15 {
+		if globalElapsed >= duration {
 			break
 		}
 	}
-	fmt.Println("Done with process: ", id, " on CPU: ", C.sched_getcpu())
 	finished <- true
 }
 
@@ -57,7 +62,7 @@ func main() {
 	runtime.GOMAXPROCS(len(cpus))
 	finished := make(chan bool, len(cpus))
 	for _, workerNumber := range cpus {
-		go worker(workerNumber, finished)
+		go taxCPU(workerNumber, 30, 10*time.Second, finished)
 	}
 	fmt.Println("waiting for worker to finish")
 	for i := 0; i < len(cpus); i++ {
