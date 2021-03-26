@@ -26,7 +26,7 @@ func (t cpuLoadTask) execute(status chan int) {
 	if err := lockOSThread(t.cpuID); err != nil {
 		log.Error(err)
 	}
-	unitMultiplier := 100
+	unitMultiplier := 1000
 	globalStart := time.Now()
 	for {
 		cycleStart := time.Now()
