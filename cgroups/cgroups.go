@@ -13,7 +13,6 @@ import (
 const (
 	procCgroupIdxSubsystems = 1
 	procCgroupIdxPath       = 2
-	cgroupRootPath          = "/sys/fs/cgroup"
 )
 
 // Cgroups represents a structure a cgroups across supported subsystems
@@ -30,7 +29,7 @@ func readFile(root string, filename string) (string, error) {
 }
 
 // LoadProcessCgroups loads a structure containing all cgroups for a given process
-func LoadProcessCgroups(pid int) (Cgroups, error) {
+func LoadProcessCgroups(pid int, cgroupsRootPath string) (Cgroups, error) {
 	var cgroups Cgroups
 	// Find and open the cgroup file for the process
 	cgroupsPath := filepath.Join("/proc", strconv.Itoa(pid), "cgroup")
@@ -50,7 +49,7 @@ func LoadProcessCgroups(pid int) (Cgroups, error) {
 	for _, csvLine := range csvLines {
 		subsystems := strings.Split(csvLine[procCgroupIdxSubsystems], ",")
 		for _, subsystem := range subsystems {
-			cgroupAbsolutePath := filepath.Join(cgroupRootPath, strings.TrimPrefix(subsystem, "name="), csvLine[procCgroupIdxPath])
+			cgroupAbsolutePath := filepath.Join(cgroupsRootPath, strings.TrimPrefix(subsystem, "name="), csvLine[procCgroupIdxPath])
 			if _, err := os.Stat(cgroupAbsolutePath); os.IsNotExist(err) {
 				return cgroups, fmt.Errorf("cgroup path doesn't exist: %s", cgroupAbsolutePath)
 			}

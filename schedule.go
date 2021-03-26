@@ -21,20 +21,23 @@ type schedule struct {
 	events         []event
 }
 
-func loadSchedule(filename string) (schedule, error) {
+func loadSchedule(filename string, cgroupsRootPath string) (schedule, error) {
 	var schedule schedule
 	// Load current cgroups before moving on
-	processCgroups, err := cgroups.LoadProcessCgroups(os.Getpid())
+	processCgroups, err := cgroups.LoadProcessCgroups(os.Getpid(), cgroupsRootPath)
 	if err != nil {
 		return schedule, err
 	}
 	schedule.processCgroups = processCgroups
-	// Load the schedule file
-	scheduleFile, err := os.Open(filename)
-	if err != nil {
-		return schedule, err
+	// Load the schedule file, or default to stdin
+	scheduleFile := os.Stdin
+	if filename != "" {
+		scheduleFile, err = os.Open(filename)
+		if err != nil {
+			return schedule, err
+		}
+		defer scheduleFile.Close()
 	}
-	defer scheduleFile.Close()
 	csvReader := csv.NewReader(scheduleFile)
 	csvReader.Comma = ','
 	csvReader.Comment = '#'
