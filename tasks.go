@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type executable interface {
@@ -22,7 +24,7 @@ type cpuLoadTask struct {
 
 func (t cpuLoadTask) execute(status chan int) {
 	if err := lockOSThread(t.cpuID); err != nil {
-		fmt.Printf("error: %v\n", err)
+		log.Error(err)
 	}
 	unitMultiplier := 100
 	globalStart := time.Now()

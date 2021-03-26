@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/phpHavok/hpc-workload-generator/cgroups"
+	log "github.com/sirupsen/logrus"
 )
 
 type event struct {
@@ -125,8 +126,8 @@ func (s schedule) execute() error {
 	}
 	// We can execute up to one thread per CPU listed
 	runtime.GOMAXPROCS(len(cpus))
-	fmt.Printf("Mapped CPU indicies: %v\n", cpus)
-	fmt.Println("Starting schedule")
+	log.Infof("Mapped CPU indicies: %v\n", cpus)
+	log.Info("Starting schedule")
 	numEvents := len(s.events)
 	if numEvents < 1 {
 		return fmt.Errorf("no events were scheduled")
@@ -138,16 +139,16 @@ func (s schedule) execute() error {
 		for time.Now().Sub(scheduleStart) < event.startTimeOffset {
 			time.Sleep(500 * time.Millisecond)
 		}
-		fmt.Println("Processing executable: ", event.executable)
+		log.Infof("Processing executable: ", event.executable)
 		go func(executable executable, statusCodes chan int) {
 			executable.execute(statusCodes)
 		}(event.executable, statusCodes)
 	}
 	// Wait for processes to exit
-	fmt.Println("Waiting for all processes to exit...")
+	log.Info("Waiting for all processes to exit...")
 	for i := 0; i < numEvents; i++ {
 		<-statusCodes
 	}
-	fmt.Println("Schedule finished running")
+	log.Info("Schedule finished running")
 	return nil
 }

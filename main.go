@@ -26,8 +26,6 @@ func main() {
 	scheduleFile := flag.String("schedule-file", "", "path to the schedule file to execute, or empty for stdin")
 	cgroupsRootPath := flag.String("cgroups-root", "/sys/fs/cgroup", "path to the root of the cgroupsv1 hierarchy")
 	flag.Parse()
-	fmt.Println(*scheduleFile)
-	fmt.Println(*cgroupsRootPath)
 	schedule, err := loadSchedule(*scheduleFile, *cgroupsRootPath)
 	if err != nil {
 		log.Fatalf("failed to load schedule: %v", err)
