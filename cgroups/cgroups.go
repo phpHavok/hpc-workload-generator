@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -57,7 +59,7 @@ func LoadProcessCgroups(pid int, cgroupsRootPath string) (Cgroups, error) {
 			case "cpuset":
 				cgroups.Cpuset = cpuset(cgroupAbsolutePath)
 			default:
-				fmt.Println("Skipping unimplemented subsystem: ", subsystem)
+				log.Debugf("skipping unimplemented subsystem: %v", subsystem)
 			}
 		}
 	}
