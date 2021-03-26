@@ -50,7 +50,10 @@ func LoadProcessCgroups(pid int) (Cgroups, error) {
 	for _, csvLine := range csvLines {
 		subsystems := strings.Split(csvLine[procCgroupIdxSubsystems], ",")
 		for _, subsystem := range subsystems {
-			cgroupAbsolutePath := filepath.Join(cgroupRootPath, subsystem, csvLine[procCgroupIdxPath])
+			cgroupAbsolutePath := filepath.Join(cgroupRootPath, strings.TrimPrefix(subsystem, "name="), csvLine[procCgroupIdxPath])
+			if _, err := os.Stat(cgroupAbsolutePath); os.IsNotExist(err) {
+				return cgroups, fmt.Errorf("cgroup path doesn't exist: %s", cgroupAbsolutePath)
+			}
 			switch subsystem {
 			case "cpuset":
 				cgroups.Cpuset = cpuset(cgroupAbsolutePath)
