@@ -6,6 +6,8 @@ RUN apt-get update && \
 
 COPY . /usr/local/hpc-workload-generator
 
-RUN make -C /usr/local/hpc-workload-generator
+WORKDIR /usr/local/hpc-workload-generator
 
-ENTRYPOINT ["/usr/local/hpc-workload-generator/hpc-workload-generator"]
+RUN make
+
+ENTRYPOINT ["./hpc-workload-generator"]
