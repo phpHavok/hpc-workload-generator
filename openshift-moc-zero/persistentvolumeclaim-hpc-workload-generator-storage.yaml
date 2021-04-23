@@ -5,7 +5,6 @@ metadata:
   namespace: uky-hpc-workload-generator
 spec:
   storageClassName: ocs-storagecluster-cephfs
-  volumeName: pvc-eafc2cc6-da07-48c9-bd45-b747581f032f
   volumeMode: Filesystem
   accessModes:
     - ReadWriteOnce
