@@ -1,5 +1,5 @@
 TARGET:=hpc-workload-generator
-SOURCES:=main.go helper.c helper.h schedule.go tasks.go cgroups/cgroups.go cgroups/cpuset.go
+SOURCES:=main.go helper.c helper.h schedule.go tasks.go
 
 $(TARGET): $(SOURCES)
 	go build -o $@

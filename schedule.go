@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/phpHavok/hpc-workload-generator/cgroups"
+	"github.com/phpHavok/cgroups_exporter/cgroups"
 	log "github.com/sirupsen/logrus"
 )
 
