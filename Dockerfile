@@ -10,4 +10,4 @@ WORKDIR /usr/local/hpc-workload-generator
 
 RUN make
 
-ENTRYPOINT ["./hpc-workload-generator"]
+ENTRYPOINT ["/usr/local/hpc-workload-generator/hpc-workload-generator"]
