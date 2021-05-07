@@ -73,7 +73,9 @@ spec:
     - name: cgroups-exporter
       image: phphavok/cgroups_exporter
       args:
-        - "-cgroup-spec"
+        - "-method"
+        - "file"
+        - "-file"
         - "/data/cgroup.spec"
       volumeMounts:
         - name: cgroup
