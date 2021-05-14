@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/cloudfoundry/bytefmt"
 	"github.com/phpHavok/cgroups_exporter/cgroups"
 	log "github.com/sirupsen/logrus"
 )
@@ -117,6 +118,29 @@ func createExecutable(taskName string, taskArgs []string, taskCgroups cgroups.Cg
 		task.pctLoad = pctLoad
 		// Process duration
 		durationSecs, err := strconv.Atoi(taskArgs[2])
+		if err != nil {
+			return task, err
+		}
+		if durationSecs < 1 {
+			return task, fmt.Errorf("duration %d (in seconds) must be positive", durationSecs)
+		}
+		task.duration = time.Duration(durationSecs) * time.Second
+		return task, nil
+	}
+	if taskName == "memory" {
+		var task memoryTask
+		task.args = taskArgs
+		if len(taskArgs) != 2 {
+			return task, fmt.Errorf("task %s expected 2 args, got: %v", taskName, taskArgs)
+		}
+		// Process numBytes (automatically ensures > 0 also)
+		numBytes, err := bytefmt.ToBytes(taskArgs[0])
+		if err != nil {
+			return task, err
+		}
+		task.numBytes = uint(numBytes)
+		// Process duration
+		durationSecs, err := strconv.Atoi(taskArgs[1])
 		if err != nil {
 			return task, err
 		}

@@ -138,3 +138,24 @@ will independently assume they have total control over that CPU.
 
 The third and final argument is the number of seconds for which the load should
 be generated.
+
+### memory
+
+The `memory` module allocates and holds memory for a given duration. The module
+has two arguments.
+
+The first argument is the amount of memory to allocate and hold. It is given by
+an integer followed by a multiplier suffix. For example, `32MiB` means allocate
+`32*1024*1024=33554432` bytes of memory. The valid suffixes are provided below.
+
+```
+KB = K = KiB = 1024
+MB = M = MiB = 1024 * K
+GB = G = GiB = 1024 * M
+TB = T = TiB = 1024 * G
+PB = P = PiB = 1024 * T
+EB = E = EiB = 1024 * P
+```
+
+The second and final argument is the number of seconds for which the allocated
+memory should be held.

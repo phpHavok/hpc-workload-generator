@@ -22,6 +22,12 @@ type cpuLoadTask struct {
 	duration time.Duration
 }
 
+type memoryTask struct {
+	task
+	numBytes uint
+	duration time.Duration
+}
+
 func (t cpuLoadTask) execute(status chan int) {
 	if err := lockOSThread(t.cpuID); err != nil {
 		log.Error(err)
@@ -47,4 +53,20 @@ func (t cpuLoadTask) execute(status chan int) {
 
 func (t cpuLoadTask) String() string {
 	return fmt.Sprintf("cpuload: %v", t.args)
+}
+
+func (t memoryTask) execute(status chan int) {
+	ptr, err := allocateMemory(t.numBytes)
+	if err != nil {
+		log.Error(err)
+	}
+	time.Sleep(t.duration)
+	if err == nil {
+		releaseMemory(ptr)
+	}
+	status <- 0
+}
+
+func (t memoryTask) String() string {
+	return fmt.Sprintf("memory: %v", t.args)
 }

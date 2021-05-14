@@ -1,4 +1,6 @@
 4, cpuload, 1, 70, 12
+8, memory, 500MiB, 30
 8, cpuload, 3, 70, 12
 12, cpuload, 5, 70, 12
+12, memory, 1GiB, 30
 16, cpuload, 7, 70, 12

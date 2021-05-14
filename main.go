@@ -9,6 +9,7 @@ import (
 	"flag"
 	"fmt"
 	"runtime"
+	"unsafe"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -20,6 +21,18 @@ func lockOSThread(cpuID int) error {
 		return fmt.Errorf("failed to bind thread to cpu %d", cpuID)
 	}
 	return nil
+}
+
+func allocateMemory(numBytes uint) (unsafe.Pointer, error) {
+	ptr := C.allocate_memory(C.ulong(numBytes))
+	if ptr == nil {
+		return nil, fmt.Errorf("unable to allocate memory %d", numBytes)
+	}
+	return ptr, nil
+}
+
+func releaseMemory(ptr unsafe.Pointer) {
+	C.release_memory(ptr)
 }
 
 func main() {
